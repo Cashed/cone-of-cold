@@ -18,18 +18,18 @@ class QuadTree {
 		QuadTree *LowerLeftTree() const { return lowerLeftTree; };
 		QuadTree *LowerRightTree() const { return lowerRightTree; };
 
-		bool withinRange(Point &playerPos);
-		void insertPlayer(const Player *player);
-		Player* findPlayer(Point &playerPos);
+		bool withinRange(const Player *player);
+		void insertPlayer(Player *player);
+		Player* findPlayer(const Player &seeker);
 
 	private:
 		Point upperLeft;
 		Point lowerRight;
 
-		Player *player = NULL;
+		Player *playerNode = nullptr;
 
-		QuadTree *upperLeftTree = NULL;
-		QuadTree *upperRightTree = NULL;
-		QuadTree *lowerLeftTree = NULL;
-		QuadTree *lowerRightTree = NULL;
+		QuadTree *upperLeftTree = nullptr;
+		QuadTree *upperRightTree = nullptr;
+		QuadTree *lowerLeftTree = nullptr;
+		QuadTree *lowerRightTree = nullptr;
 };
