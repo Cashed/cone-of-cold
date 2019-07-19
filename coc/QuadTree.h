@@ -3,15 +3,14 @@
 #include "Point.h"
 #include "Player.h"
 
+#define ENABLE_PRINT 0
+
 class QuadTree {
 	public:
 		QuadTree(Point _upperLeft, Point _lowerRight)
 			: upperLeft(_upperLeft), lowerRight(_lowerRight) {};
 
-		QuadTree() {
-			upperLeft = Point(0, 0);
-			lowerRight = Point(0, 0);
-		}
+		QuadTree() : upperLeft({ 0,0 }), lowerRight({ 0,0 }) {};
 
 		QuadTree *UpperLeftTree() const { return upperLeftTree; };
 		QuadTree *UpperRightTree() const { return upperRightTree; };
@@ -21,6 +20,8 @@ class QuadTree {
 		bool withinRange(const Player *player);
 		void insertPlayer(Player *player);
 		Player* findPlayer(const Player &seeker);
+
+		void Draw() const;
 
 	private:
 		Point upperLeft;

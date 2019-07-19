@@ -1,8 +1,29 @@
 #include "stdafx.h"
 
 #include "QuadTree.h"
+#include "ConsoleDrawUtils.h"
 #include <iostream>
 #include <cmath>
+
+#if ENABLE_PRINT
+	#define PRINT(x) std::cout << x;
+#else
+	#define PRINT(X) void()
+#endif
+
+void QuadTree::Draw() const
+{
+	DrawBoxToConsole(upperLeft.X(), lowerRight.X(), upperLeft.Y(), lowerRight.Y());
+
+	if (upperLeftTree)
+		upperLeftTree->Draw();
+	if (upperRightTree)
+		upperRightTree->Draw();
+	if (lowerLeftTree)
+		lowerLeftTree->Draw();
+	if (lowerRightTree)
+		lowerRightTree->Draw();
+}
 
 // we need to check that the player is within
 // this quadtree by comparing player position to
@@ -21,7 +42,7 @@ void QuadTree::insertPlayer(Player *player) {
 	// first check that this player even belongs
 	// in this quadrant
 	if (!withinRange(player)) {
-		std::cout << "player out of bounds of this quad\n";
+		PRINT("player out of bounds of this quad\n");
 		return;
 	}
 
@@ -34,12 +55,12 @@ void QuadTree::insertPlayer(Player *player) {
 		// we are at the lowest granularity.
 		// the player can exist if there is not already one here
 		if (playerNode == nullptr) {
-			std::cout << "playernode is null, time to insert!\n";
+			PRINT("playernode is null, time to insert!\n");
 			playerNode = player;
-			std::cout << "player inserted\n";
+			PRINT("player inserted\n");
 			return;
 		} else {
-			std::cout << "no room for you!\n";
+			PRINT("no room for you!\n");
 			return;
 		}
 
@@ -115,7 +136,7 @@ Player* QuadTree::findPlayer(const Player &seeker) {
 
 	// are you the one?? ... and also not the seeker lol
 	if (playerNode != nullptr && strcmp(playerNode->Name().c_str(), seeker.Name().c_str()) != 0) {
-		std::cout << "found player\n";
+		PRINT("found player\n");
 		return playerNode;
 	}
 

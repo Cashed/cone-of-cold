@@ -7,10 +7,11 @@
 #include "Vector3.h"
 #include "Point.h"
 #include "QuadTree.h"
+#include "ConsoleDrawUtils.h"
+#include <time.h>
 
 const int MAX_RANGE = 5;
 const int CONE_WIDTH = 60; // degrees
-
 
 void gotHit(Vector3 magePos, Vector3 facingDir, Vector3 maybeVictimPos) {
 	// check if within range
@@ -58,24 +59,43 @@ int main()
 	//gotHit(meAMage, facingDir, player2);
 	//gotHit(meAMage, facingDir, player3);
 
-	QuadTree area(Point(0, 0), Point(20, 20));
+	static const int MAX_X = 50;
+	static const int MAX_Y = 50;
 
-	Player player1(Point(4, 3), "Skrappy");
+	srand(time(NULL));
+
+	QuadTree area(Point(0, 0), Point(MAX_X, MAX_Y));
+
+	static const char* const s_charNames[] = { "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd" };
+	static const int NUM_NAMES = 6;
+
+	std::vector<Player> players;
+	for (int i = 0; i < NUM_NAMES; ++i)
+	{
+		players.emplace_back(Point(rand() % MAX_X, rand() % MAX_Y), s_charNames[i]);
+	}
+
+	/* Player player1(Point(4, 3), "Skrappy");
 	Player player2(Point(4, 3), "Chaosity");
 	Player player3(Point(4, 3), "Leayanne");
 	Player player4(Point(4, 3), "Ragin");
 	Player player5(Point(4, 3), "Liandri");
-	Player player6(Point(4, 3), "Zedd");
+	Player player6(Point(4, 3), "Zedd"); */
 
-	area.insertPlayer(&player1);
+	for (Player& curPlayer : players)
+	{
+		area.insertPlayer(&curPlayer);
+	}
+
+	/* area.insertPlayer(&player1);
 	area.insertPlayer(&player2);
 	area.insertPlayer(&player3);
 	area.insertPlayer(&player4);
 	area.insertPlayer(&player5);
-	area.insertPlayer(&player6);
+	area.insertPlayer(&player6); */
 
 	Player positionOfHit = Player(Point(4, 3), "Alaunius");
-	std::cout << positionOfHit.Name() << " got hit with chain lightning! who's next??\n";
+	//std::cout << positionOfHit.Name() << " got hit with chain lightning! who's next??\n";
 
 	auto totalJumps = 4;
 	auto currentJump = 1;
@@ -84,16 +104,24 @@ int main()
 		auto found = area.findPlayer(positionOfHit);
 
 		if (found == nullptr) {
-			std::cout << "no one near you =(\n";
-			std::cout << "total jumps made = " << currentJump;
+			//std::cout << "no one near you =(\n";
+			//std::cout << "total jumps made = " << currentJump;
 			break;
 		}
 
 		++currentJump;
-		std::cout << found->Name() << " dun been hit!\n";
-		std::cout << "now jumping to player closest to " << found->Position().X() << ", " << found->Position().Y() << "\n";
+		//std::cout << found->Name() << " dun been hit!\n";
+		//std::cout << "now jumping to player closest to " << found->Position().X() << ", " << found->Position().Y() << "\n";
 		positionOfHit = Player(found->Position(), found->Name());
 	}
+
+	area.Draw();
+	for (const Player& player : players) {
+		DrawPosToConsole(player.Position().X(), player.Position().Y(), player.Name().front());
+	}
+	DrawPosToConsole(positionOfHit.Position().X(), positionOfHit.Position().Y(), positionOfHit.Name().front());
+
+	std::cin.ignore();
 
     return 0;
 }
