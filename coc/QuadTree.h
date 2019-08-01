@@ -2,6 +2,7 @@
 
 #include "Point.h"
 #include "Player.h"
+#include <vector>
 
 #define ENABLE_PRINT 0
 
@@ -17,8 +18,8 @@ class QuadTree {
 		QuadTree *LowerLeftTree() const { return lowerLeftTree; };
 		QuadTree *LowerRightTree() const { return lowerRightTree; };
 
-		bool withinRange(const Player *player);
-		void insertPlayer(Player *player);
+		bool withinRange(const Player &player);
+		bool insertPlayer(Player &player);
 		Player* findPlayer(const Player &seeker);
 
 		void Draw() const;
@@ -27,7 +28,7 @@ class QuadTree {
 		Point upperLeft;
 		Point lowerRight;
 
-		Player *playerNode = nullptr;
+		std::vector<Player> players;
 
 		QuadTree *upperLeftTree = nullptr;
 		QuadTree *upperRightTree = nullptr;

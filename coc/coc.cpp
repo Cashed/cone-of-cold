@@ -66,8 +66,8 @@ int main()
 
 	QuadTree area(Point(0, 0), Point(MAX_X, MAX_Y));
 
-	static const char* const s_charNames[] = { "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd" };
-	static const int NUM_NAMES = 6;
+	static const char* const s_charNames[] = { "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd", "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd" };
+	static const int NUM_NAMES = 12;
 
 	std::vector<Player> players;
 	for (int i = 0; i < NUM_NAMES; ++i)
@@ -82,9 +82,9 @@ int main()
 	Player player5(Point(4, 3), "Liandri");
 	Player player6(Point(4, 3), "Zedd"); */
 
-	for (Player& curPlayer : players)
+	for (Player curPlayer : players)
 	{
-		area.insertPlayer(&curPlayer);
+		area.insertPlayer(curPlayer);
 	}
 
 	/* area.insertPlayer(&player1);
@@ -100,20 +100,20 @@ int main()
 	auto totalJumps = 4;
 	auto currentJump = 1;
 
-	while (currentJump != totalJumps) {
-		auto found = area.findPlayer(positionOfHit);
+	//while (currentJump != totalJumps) {
+	//	auto found = area.findPlayer(positionOfHit);
 
-		if (found == nullptr) {
-			//std::cout << "no one near you =(\n";
-			//std::cout << "total jumps made = " << currentJump;
-			break;
-		}
+	//	if (found == nullptr) {
+	//		//std::cout << "no one near you =(\n";
+	//		//std::cout << "total jumps made = " << currentJump;
+	//		break;
+	//	}
 
-		++currentJump;
-		//std::cout << found->Name() << " dun been hit!\n";
-		//std::cout << "now jumping to player closest to " << found->Position().X() << ", " << found->Position().Y() << "\n";
-		positionOfHit = Player(found->Position(), found->Name());
-	}
+	//	++currentJump;
+	//	//std::cout << found->Name() << " dun been hit!\n";
+	//	//std::cout << "now jumping to player closest to " << found->Position().X() << ", " << found->Position().Y() << "\n";
+	//	positionOfHit = Player(found->Position(), found->Name());
+	//}
 
 	area.Draw();
 	for (const Player& player : players) {

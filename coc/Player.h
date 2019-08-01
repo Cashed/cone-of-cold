@@ -6,7 +6,7 @@
 class Player {
 	public:
 		Player() = delete;
-		Player(Point _position, std::string _name)
+		Player(const Point &_position, const std::string &_name)
 			: position(_position), name(_name) {};
 
 		Point Position() const { return position; };
