@@ -66,8 +66,8 @@ int main()
 
 	QuadTree area(Point(0, 0), Point(MAX_X, MAX_Y));
 
-	static const char* const s_charNames[] = { "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd", "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd" };
-	static const int NUM_NAMES = 12;
+	static const char* const s_charNames[] = { "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd", "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd", "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd" };
+	static const int NUM_NAMES = 18;
 
 	std::vector<Player> players;
 	for (int i = 0; i < NUM_NAMES; ++i)

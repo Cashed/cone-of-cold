@@ -81,6 +81,15 @@ bool QuadTree::insertPlayer(Player &player) {
 		);
 	}
 
+	for (auto &p : players) {
+		upperLeftTree->insertPlayer(p);
+		upperRightTree->insertPlayer(p);
+		lowerLeftTree->insertPlayer(p);
+		lowerRightTree->insertPlayer(p);
+	}
+
+	players.clear();
+
 	// now lets try to insert the player into one of them
 	if (upperLeftTree->insertPlayer(player)) return true;
 	if (upperRightTree->insertPlayer(player)) return true;
