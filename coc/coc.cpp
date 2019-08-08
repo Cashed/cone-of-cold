@@ -10,6 +10,12 @@
 #include "ConsoleDrawUtils.h"
 #include <time.h>
 
+#if ENABLE_PRINT
+#define PRINT(x) std::cout << x;
+#else
+#define PRINT(X) void()
+#endif
+
 const int MAX_RANGE = 5;
 const int CONE_WIDTH = 60; // degrees
 
@@ -44,6 +50,32 @@ void gotHit(Vector3 magePos, Vector3 facingDir, Vector3 maybeVictimPos) {
 	}
 }
 
+void hitPlayer(Player& player) {
+	auto dmg = rand() % 100 + 1;
+
+	player.lowerHp(dmg);
+	PRINT(player.Name());
+	PRINT(" has been hit for ");
+	PRINT(dmg);
+	PRINT("\n");
+}
+
+std::vector<Player> getTargets(int num, std::vector<Player> &potentials, Player &initial) {
+	std::vector<Player> targets;
+	std::vector<std::string> seen;
+
+	// filter duplicates and make sure we arent hitting the initial guy
+	for (auto i = 0; i < num; ++i) {
+		if (potentials[i].Name() != initial.Name() && !(std::find(seen.begin(), seen.end(), potentials[i].Name()) != seen.end())) {
+			targets.emplace_back(potentials[i]);
+		}
+
+		seen.emplace_back(potentials[i].Name());
+	}
+
+	return targets;
+}
+
 
 int main()
 {
@@ -66,60 +98,38 @@ int main()
 
 	QuadTree area(Point(0, 0), Point(MAX_X, MAX_Y));
 
-	static const char* const s_charNames[] = { "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd", "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd", "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd" };
+	static const char* const s_charNames[] = { "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd", "Taliana", "Flame", "Mel", "Erelia", "Cached", "Reagan", "Zimble", "Kass", "Ankou", "Chef", "Mike", "Gordon" };
 	static const int NUM_NAMES = 18;
 
 	std::vector<Player> players;
 	for (int i = 0; i < NUM_NAMES; ++i)
 	{
-		players.emplace_back(Point(rand() % MAX_X, rand() % MAX_Y), s_charNames[i]);
+		players.emplace_back(Point(rand() % MAX_X, rand() % MAX_Y), s_charNames[i], 100);
 	}
-
-	/* Player player1(Point(4, 3), "Skrappy");
-	Player player2(Point(4, 3), "Chaosity");
-	Player player3(Point(4, 3), "Leayanne");
-	Player player4(Point(4, 3), "Ragin");
-	Player player5(Point(4, 3), "Liandri");
-	Player player6(Point(4, 3), "Zedd"); */
 
 	for (Player curPlayer : players)
 	{
 		area.insertPlayer(curPlayer);
 	}
 
-	/* area.insertPlayer(&player1);
-	area.insertPlayer(&player2);
-	area.insertPlayer(&player3);
-	area.insertPlayer(&player4);
-	area.insertPlayer(&player5);
-	area.insertPlayer(&player6); */
 
-	Player positionOfHit = Player(Point(4, 3), "Alaunius");
-	//std::cout << positionOfHit.Name() << " got hit with chain lightning! who's next??\n";
+	Player initialTarget = players[rand() % 10];
 
-	auto totalJumps = 4;
-	auto currentJump = 1;
+	auto neighbors = area.findNearestPlayers(initialTarget, 40);
 
-	//while (currentJump != totalJumps) {
-	//	auto found = area.findPlayer(positionOfHit);
+	auto targets = getTargets(3, neighbors, initialTarget);
 
-	//	if (found == nullptr) {
-	//		//std::cout << "no one near you =(\n";
-	//		//std::cout << "total jumps made = " << currentJump;
-	//		break;
-	//	}
+	hitPlayer(initialTarget);
 
-	//	++currentJump;
-	//	//std::cout << found->Name() << " dun been hit!\n";
-	//	//std::cout << "now jumping to player closest to " << found->Position().X() << ", " << found->Position().Y() << "\n";
-	//	positionOfHit = Player(found->Position(), found->Name());
-	//}
+	for (auto& p : targets) {
+		hitPlayer(p);
+	}
 
 	area.Draw();
 	for (const Player& player : players) {
 		DrawPosToConsole(player.Position().X(), player.Position().Y(), player.Name().front());
 	}
-	DrawPosToConsole(positionOfHit.Position().X(), positionOfHit.Position().Y(), positionOfHit.Name().front());
+	DrawPosToConsole(initialTarget.Position().X(), initialTarget.Position().Y(), initialTarget.Name().front());
 
 	std::cin.ignore();
 

@@ -4,7 +4,7 @@
 #include "Player.h"
 #include <vector>
 
-#define ENABLE_PRINT 0
+#define ENABLE_PRINT 1
 
 class QuadTree {
 	public:
@@ -18,9 +18,9 @@ class QuadTree {
 		QuadTree *LowerLeftTree() const { return lowerLeftTree; };
 		QuadTree *LowerRightTree() const { return lowerRightTree; };
 
-		bool withinRange(const Player &player);
+		bool withinQuad(const Player &player);
 		bool insertPlayer(Player &player);
-		Player* findPlayer(const Player &seeker);
+		std::vector<Player> findNearestPlayers(Player &origin, int range);
 
 		void Draw() const;
 
