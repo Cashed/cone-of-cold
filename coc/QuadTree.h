@@ -7,28 +7,34 @@
 #define ENABLE_PRINT 1
 
 class QuadTree {
-	public:
-		QuadTree(Point _upperLeft, Point _lowerRight)
-			: upperLeft(_upperLeft), lowerRight(_lowerRight) {};
+public:
+	QuadTree(Point _upperLeft, Point _lowerRight, QuadTree* _parent)
+		: upperLeft(_upperLeft), lowerRight(_lowerRight), parent(_parent) {};
 
-		QuadTree() : upperLeft({ 0,0 }), lowerRight({ 0,0 }) {};
+	QuadTree() : upperLeft({ 0,0 }), lowerRight({ 0,0 }) {};
 
-		QuadTree *UpperLeftTree() const { return upperLeftTree; };
-		QuadTree *UpperRightTree() const { return upperRightTree; };
-		QuadTree *LowerLeftTree() const { return lowerLeftTree; };
-		QuadTree *LowerRightTree() const { return lowerRightTree; };
+	QuadTree* UpperLeftTree() const { return upperLeftTree; };
+	QuadTree* UpperRightTree() const { return upperRightTree; };
+	QuadTree* LowerLeftTree() const { return lowerLeftTree; };
+	QuadTree* LowerRightTree() const { return lowerRightTree; };
 
-		bool withinQuad(const Player &player);
-		bool insertPlayer(Player &player);
-		std::vector<Player> findNearestPlayers(Player &origin, int range);
+	Point UpperLeft() const { return upperLeft; };
+	Point LowerRight() const { return lowerRight; };
 
-		void Draw() const;
+	bool withinQuad(const Player &player);
+	bool insertPlayer(Player &player);
+	Player& findNearestPlayer(Player &origin, int range);
+	QuadTree* findQuadForPlayer(Player& p);
+
+	void Draw() const;
 
 	private:
 		Point upperLeft;
 		Point lowerRight;
 
 		std::vector<Player> players;
+
+		QuadTree *parent = nullptr;
 
 		QuadTree *upperLeftTree = nullptr;
 		QuadTree *upperRightTree = nullptr;

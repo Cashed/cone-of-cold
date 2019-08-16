@@ -57,18 +57,21 @@ bool QuadTree::insertPlayer(Player &player) {
 			Point(
 			(upperLeft.X() + lowerRight.X()) / 2,
 				(upperLeft.Y() + lowerRight.Y()) / 2
-			)
+			),
+			this
 		);
 
 		lowerLeftTree = new QuadTree(
 			Point(upperLeft.X(), (upperLeft.Y() + lowerRight.Y()) / 2),
-			Point((upperLeft.X() + lowerRight.X()) / 2, lowerRight.Y())
+			Point((upperLeft.X() + lowerRight.X()) / 2, lowerRight.Y()),
+			this
 		);
 
 
 		upperRightTree = new QuadTree(
 			Point((upperLeft.X() + lowerRight.X()) / 2, upperLeft.Y()),
-			Point(lowerRight.X(), (upperLeft.Y() + lowerRight.Y()) / 2)
+			Point(lowerRight.X(), (upperLeft.Y() + lowerRight.Y()) / 2),
+			this
 		);
 
 
@@ -77,7 +80,8 @@ bool QuadTree::insertPlayer(Player &player) {
 			(upperLeft.X() + lowerRight.X()) / 2,
 				(upperLeft.Y() + lowerRight.Y()) / 2
 			),
-			Point(lowerRight.X(), lowerRight.Y())
+			Point(lowerRight.X(), lowerRight.Y()),
+			this
 		);
 	}
 
@@ -117,95 +121,105 @@ double pointLineDistance(Point &vertex1, Point &vertex2, Point &castOrigin) {
 
 // find if a quad intersects with the radius of the spell
 bool intersects(Point &upperLeft, Point &lowerRight, Point &castOrigin, int range) {
-	// get the other two vertices of the quad
-	auto lowerLeft = Point(upperLeft.X(), lowerRight.Y());
-	auto upperRight = Point(lowerRight.X(), upperLeft.Y());
-
-	// check if the distance between any of these vertices and
-	// center of the cast is shorter than the range
-	if (distance(castOrigin, upperLeft) <= range) {
-		return true;
-	}
-	else if (distance(castOrigin, lowerLeft) <= range) {
-		return true;
-	}
-	else if (distance(castOrigin, upperRight) <= range) {
-		return true;
-	}
-	else if (distance(castOrigin, lowerRight) <= range) {
-		return true;
-	}
-
-	// check if the distance between an edge of the quad and
-	// center of the cast is shorter than the range
-	// top edge
-	if (pointLineDistance(upperLeft, upperRight, castOrigin) <= range) {
-		return true;
-	}
-	// left edge
-	else if (pointLineDistance(upperLeft, lowerLeft, castOrigin) <= range) {
-		return true;
-	}
-	// bottom edge
-	else if (pointLineDistance(lowerLeft, lowerRight, castOrigin) <= range) {
-		return true;
-	}
-	// right edge
-	else if (pointLineDistance(upperRight, lowerRight, castOrigin) <= range) {
-		return true;
-	}
-
-	return false;
+	auto upperLeftSpell = Point(castOrigin.X() - range, castOrigin.Y() + range);
+	auto lowerRightSpell = Point(castOrigin.X() + range, castOrigin.Y() - range);
+	// you should draw this
+	return !(upperLeftSpell.Y() < upperLeft.Y() ||
+		lowerRightSpell.Y() > upperLeft.Y() ||
+		upperLeftSpell.X() > lowerRight.X() ||
+		lowerRightSpell.X() < upperLeft.X());
 }
 
 
-std::vector<Player> QuadTree::findNearestPlayers(Player &origin, int range) {
-	auto radius = 40;
-	std::vector<Player> potentials;
+Player& filterNearest(std::vector<Player> potentials, Player &origin, int range) {
+	auto nearest = potentials[0];
+	auto minDistance = sqrdDistance(nearest.Position(), origin.Position());
 
-	// check if origin of the cast lies within this quad
-	// or if the quad intersects within the range of the cast
-	if (withinQuad(origin) || intersects(upperLeft, lowerRight, origin.Position(), range)) {
-		for (auto &p : players) {
-			potentials.emplace_back(p);
+	for (auto& p : potentials) {
+		auto distance = sqrdDistance(nearest.Position(), origin.Position());
+
+		if (distance < minDistance) {
+			nearest = p;
+			minDistance = distance;
 		}
-
-		// if this is the end of the line, return
-		if (upperLeftTree == nullptr) {
-			return potentials;
-		}
-
-		// if not, keep looking down the line
-		auto upperLeftPotentials = upperLeftTree->findNearestPlayers(origin, range);
-		auto lowerLeftPotentials = lowerLeftTree->findNearestPlayers(origin, range);
-		auto upperRightPotentials = upperRightTree->findNearestPlayers(origin, range);
-		auto lowerRightPotentials = lowerRightTree->findNearestPlayers(origin, range);
-
-		// concatentate the vectors returned
-		potentials.insert(
-			potentials.end(),
-			std::make_move_iterator(upperLeftPotentials.begin()),
-			std::make_move_iterator(upperLeftPotentials.end())
-		);
-
-		potentials.insert(
-			potentials.end(),
-			std::make_move_iterator(lowerLeftPotentials.begin()),
-			std::make_move_iterator(lowerLeftPotentials.end())
-		);
-
-		potentials.insert(
-			potentials.end(),
-			std::make_move_iterator(upperRightPotentials.begin()),
-			std::make_move_iterator(upperRightPotentials.end())
-		);
-
-		potentials.insert(
-			potentials.end(),
-			std::make_move_iterator(lowerRightPotentials.begin()),
-			std::make_move_iterator(lowerRightPotentials.end())
-		);
 	}
 
-	return potentials;
+	return nearest;
+}
+
+
+QuadTree* QuadTree::findQuadForPlayer(Player& p) {
+	for (auto& p : players) {
+		if (p.Name().compare(p.Name()) == 0) {
+			return this;
+		}
+	}
+	
+	// left?
+	if ((upperLeft.X() + lowerRight.X()) / 2 >= p.Position().X()) {
+		// top?
+		if ((upperLeft.Y() + lowerRight.Y()) / 2 >= p.Position().Y()) {
+			if (upperLeftTree == nullptr) {
+				// end of the line
+				return nullptr;
+			}
+			// the search continues
+			upperLeftTree->findQuadForPlayer(p);
+			// bottom
+		}
+		else {
+			if (lowerLeftTree == nullptr) {
+				// end of the line
+				return nullptr;
+			}
+			// the search continues
+			lowerLeftTree->findQuadForPlayer(p);
+		}
+		// right
+	}
+	else {
+		// top?
+		if ((upperLeft.Y() + lowerRight.Y()) / 2 >= p.Position().Y()) {
+			if (upperRightTree == nullptr) {
+				// end of the line
+				return nullptr;
+			}
+			// the search continues
+			upperRightTree->findQuadForPlayer(p);
+			// bottom
+		}
+		else {
+			if (lowerRightTree == nullptr) {
+				// end of the line
+				return nullptr;
+			}
+			// the search continues
+			lowerRightTree->findQuadForPlayer(p);
+		}
+	}
+}
+
+
+Player& QuadTree::findNearestPlayer(Player& origin, int range) {
+	std::vector<Player> potentials;
+
+	// get quad where origin player is standing
+	auto quad = findQuadForPlayer(origin);
+
+	// step up through parent of each quad that intersects with cast range and collect players
+	while (quad->parent != nullptr) {
+		quad = quad->parent;
+
+		if (intersects(quad->UpperLeftTree.UpperLeft(), quad->UpperLeftTree.LowerRight(), origin.Position(), range)) {
+			for (auto& p : quad->UpperLeftTree.players) {
+				potentials.emplace_back(p);
+			}
+		}
+
+
+		quad = quad->parent;
+	}
+
+	// filter closest player
+	return filterNearest(potentials, origin, range);
 }
