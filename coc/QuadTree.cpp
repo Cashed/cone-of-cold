@@ -131,12 +131,12 @@ bool intersects(Point &upperLeft, Point &lowerRight, Point &castOrigin, int rang
 }
 
 
-Player& filterNearest(std::vector<Player> potentials, Player &origin, int range) {
-	auto nearest = potentials[0];
-	auto minDistance = sqrdDistance(nearest.Position(), origin.Position());
+Player& filterNearest(std::vector<Player> &potentials, const Player &origin, int range) {
+	Player &nearest = potentials[0];
+	auto minDistance = INT16_MAX;
 
 	for (auto& p : potentials) {
-		auto distance = sqrdDistance(nearest.Position(), origin.Position());
+		auto distance = sqrdDistance(p.Position(), origin.Position());
 
 		if (distance < minDistance) {
 			nearest = p;
@@ -203,23 +203,29 @@ QuadTree* QuadTree::findQuadForPlayer(Player& p) {
 Player& QuadTree::findNearestPlayer(Player& origin, int range) {
 	std::vector<Player> potentials;
 
-	// get quad where origin player is standing
-	auto quad = findQuadForPlayer(origin);
-
-	// step up through parent of each quad that intersects with cast range and collect players
-	while (quad->parent != nullptr) {
-		quad = quad->parent;
-
-		if (intersects(quad->UpperLeftTree.UpperLeft(), quad->UpperLeftTree.LowerRight(), origin.Position(), range)) {
-			for (auto& p : quad->UpperLeftTree.players) {
-				potentials.emplace_back(p);
-			}
+	// check if leaf
+	if (upperLeftTree != nullptr) {
+		if (intersects(upperLeftTree->upperLeft, upperLeftTree->lowerRight, origin.Position(), range)) {
+			 potentials.emplace_back(upperLeftTree->findNearestPlayer(origin, range));
 		}
 
+		if (intersects(upperRightTree->upperLeft, upperRightTree->lowerRight, origin.Position(), range)) {
+			potentials.emplace_back(upperRightTree->findNearestPlayer(origin, range));
+		}
 
-		quad = quad->parent;
+		if (intersects(lowerLeftTree->upperLeft, lowerLeftTree->lowerRight, origin.Position(), range)) {
+			potentials.emplace_back(lowerLeftTree->findNearestPlayer(origin, range));
+		}
+
+		if (intersects(lowerRightTree->upperLeft, lowerRightTree->lowerRight, origin.Position(), range)) {
+			potentials.emplace_back(lowerRightTree->findNearestPlayer(origin, range));
+		}
 	}
 
-	// filter closest player
+	for (auto& p : players) {
+		potentials.emplace_back(p);
+	}
+
+	// if we are a leaf, filter closest player
 	return filterNearest(potentials, origin, range);
 }

@@ -96,7 +96,7 @@ int main()
 
 	srand(time(NULL));
 
-	QuadTree area(Point(0, 0), Point(MAX_X, MAX_Y));
+	QuadTree area(Point(0, 0), Point(MAX_X, MAX_Y), nullptr);
 
 	static const char* const s_charNames[] = { "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd", "Taliana", "Flame", "Mel", "Erelia", "Cached", "Reagan", "Zimble", "Kass", "Ankou", "Chef", "Mike", "Gordon" };
 	static const int NUM_NAMES = 18;
@@ -115,23 +115,24 @@ int main()
 
 	Player initialTarget = players[rand() % 10];
 
-	auto neighbors = area.findNearestPlayers(initialTarget, 40);
+	auto neighbors = area.findNearestPlayer(initialTarget, 40);
 
-	auto targets = getTargets(3, neighbors, initialTarget);
+	//auto targets = getTargets(3, neighbors, initialTarget);
 
 	hitPlayer(initialTarget);
+	std::cout << neighbors.Name() << std::endl;
 
-	for (auto& p : targets) {
-		hitPlayer(p);
-	}
+	//for (auto& p : targets) {
+	//	hitPlayer(p);
+	//}
 
-	area.Draw();
-	for (const Player& player : players) {
-		DrawPosToConsole(player.Position().X(), player.Position().Y(), player.Name().front());
-	}
-	DrawPosToConsole(initialTarget.Position().X(), initialTarget.Position().Y(), initialTarget.Name().front());
+	//area.Draw();
+	//for (const Player& player : players) {
+	//	DrawPosToConsole(player.Position().X(), player.Position().Y(), player.Name().front());
+	//}
+	//DrawPosToConsole(initialTarget.Position().X(), initialTarget.Position().Y(), initialTarget.Name().front());
 
-	std::cin.ignore();
+	//std::cin.ignore();
 
     return 0;
 }
