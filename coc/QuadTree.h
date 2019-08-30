@@ -24,7 +24,9 @@ public:
 	bool withinQuad(const Player &player);
 	bool insertPlayer(Player &player);
 	Player& findNearestPlayer(Player &origin, int range);
+	Player& findNearestPlayer2(Player& origin, int range);
 	QuadTree* findQuadForPlayer(Player& p);
+	void getNearbyPlayers(std::vector<Player>& potentials);
 
 	void Draw() const;
 
