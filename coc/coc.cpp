@@ -9,6 +9,7 @@
 #include "QuadTree.h"
 #include "ConsoleDrawUtils.h"
 #include <time.h>
+#include <algorithm>
 
 #if ENABLE_PRINT
 #define PRINT(x) std::cout << x;
@@ -76,6 +77,91 @@ std::vector<Player> getTargets(int num, std::vector<Player> &potentials, Player 
 	return targets;
 }
 
+float sqrdDistance(Point& first, Point& second) {
+	return float(abs(second.X() - first.X()) + abs(second.Y() - first.Y()));
+}
+
+Player& filterNearest(std::vector<Player>& potentials, const Player& origin, int range) {
+	Player& nearest = potentials[0];
+	auto minDistance = INT16_MAX;
+
+	for (auto& p : potentials) {
+		auto distance = sqrdDistance(p.Position(), origin.Position());
+
+		if (distance < minDistance) {
+			nearest = p;
+			minDistance = distance;
+		}
+	}
+
+	return nearest;
+}
+
+bool isDuplicate(std::vector<Player> &players, const Player& player) {
+	for (auto &p : players) {
+		auto it = std::find_if(players.begin(), players.end(), [&player](const Player pl) { return pl.Name().compare(player.Name()) == 0; });
+
+			if (it != players.end())
+			{
+				// found player
+				return true;
+			}
+	}
+	return false;
+}
+
+void castChainLightning(const Player &caster, Player &initial, QuadTree &area, int range) {
+	// list of nearby players
+	std::vector<Player> playersNearby;
+	// filtered list of possible targets
+	std::vector<Player> potentials;
+	// list of final targets
+	std::vector<Player> targets;
+
+	PRINT("target = ");
+	PRINT(initial.Name());
+	PRINT("\n");
+
+	targets.emplace_back(initial);
+
+	hitPlayer(initial);
+
+	auto numJumps = 4;
+	
+	auto &target = initial;
+
+	// keep finding nearest player till jumps are exhausted
+	while (numJumps > 0) {
+		// get all players nearby target
+		area.getNearestPlayers(playersNearby, target, range);
+
+		//filter for duplicates, players already hit, initial target
+		for (auto& p : playersNearby) {
+			if (p.Name().compare(caster.Name()) != 0 && !isDuplicate(potentials, p) && !isDuplicate(targets, p)) {
+				potentials.emplace_back(p);
+			}
+		}
+
+		// get closest one
+		target = filterNearest(potentials, target, range);
+		targets.emplace_back(target);
+
+		// move on to next
+		playersNearby.clear();
+		potentials.clear();
+		--numJumps;
+	}
+
+	for (auto &t : targets) {
+		// hit player
+		PRINT("\ntarget = ");
+		PRINT(t.Name());
+		PRINT("\n");
+
+		hitPlayer(t);
+	}
+}
+
 
 int main()
 {
@@ -114,13 +200,20 @@ int main()
 
 
 	Player initialTarget = players[rand() % 10];
+	Player caster = players[rand() % 18];
 
-	auto neighbors = area.findNearestPlayer(initialTarget, 40);
+	while (initialTarget.Name().compare(caster.Name()) == 0) {
+		caster = players[rand() % 17];
+	}
+
+	PRINT(caster.Name());
+	PRINT(" is first targetting ");
+	PRINT(initialTarget.Name());
+	PRINT("\n");
+
+	castChainLightning(caster, initialTarget, area, 40);
 
 	//auto targets = getTargets(3, neighbors, initialTarget);
-
-	hitPlayer(initialTarget);
-	std::cout << neighbors.Name() << std::endl;
 
 	//for (auto& p : targets) {
 	//	hitPlayer(p);

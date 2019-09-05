@@ -105,10 +105,6 @@ bool QuadTree::insertPlayer(Player &player) {
 	return false;
 }
 
-float sqrdDistance(Point& first, Point& second) {
-	return float(abs(second.X() - first.X()) + abs(second.Y() - first.Y()));
-}
-
 float distance(Point& first, Point& second) {
 	return float(sqrt(abs(second.X() - first.X()) + abs(second.Y() - first.Y())));
 }
@@ -129,24 +125,6 @@ bool intersects(Point &upperLeft, Point &lowerRight, Point &castOrigin, int rang
 		upperLeftSpell.X() > lowerRight.X() ||
 		lowerRightSpell.X() < upperLeft.X());
 }
-
-
-Player& filterNearest(std::vector<Player> &potentials, const Player &origin, int range) {
-	Player &nearest = potentials[0];
-	auto minDistance = INT16_MAX;
-
-	for (auto& p : potentials) {
-		auto distance = sqrdDistance(p.Position(), origin.Position());
-
-		if (distance < minDistance) {
-			nearest = p;
-			minDistance = distance;
-		}
-	}
-
-	return nearest;
-}
-
 
 QuadTree* QuadTree::findQuadForPlayer(Player& p) {
 	for (auto& p : players) {
@@ -200,32 +178,20 @@ QuadTree* QuadTree::findQuadForPlayer(Player& p) {
 }
 
 
-Player& QuadTree::findNearestPlayer(Player& origin, int range) {
-	std::vector<Player> potentials;
-
-	// check if leaf
-	if (upperLeftTree != nullptr) {
-		if (intersects(upperLeftTree->upperLeft, upperLeftTree->lowerRight, origin.Position(), range)) {
-			 potentials.emplace_back(upperLeftTree->findNearestPlayer(origin, range));
-		}
-
-		if (intersects(upperRightTree->upperLeft, upperRightTree->lowerRight, origin.Position(), range)) {
-			potentials.emplace_back(upperRightTree->findNearestPlayer(origin, range));
-		}
-
-		if (intersects(lowerLeftTree->upperLeft, lowerLeftTree->lowerRight, origin.Position(), range)) {
-			potentials.emplace_back(lowerLeftTree->findNearestPlayer(origin, range));
-		}
-
-		if (intersects(lowerRightTree->upperLeft, lowerRightTree->lowerRight, origin.Position(), range)) {
-			potentials.emplace_back(lowerRightTree->findNearestPlayer(origin, range));
-		}
+void QuadTree::getNearestPlayers(std::vector<Player> &nearbyPlayers, const Player &origin, int range) {
+	if (!intersects(upperLeft, lowerRight, origin.Position(), range)) {
+		return;
 	}
 
-	for (auto& p : players) {
-		potentials.emplace_back(p);
+	if (upperLeftTree == nullptr) {
+		for (auto& p : players) {
+			nearbyPlayers.emplace_back(p);
+		}
 	}
-
-	// if we are a leaf, filter closest player
-	return filterNearest(potentials, origin, range);
+	else {
+		upperLeftTree->getNearestPlayers(nearbyPlayers, origin, range);
+		lowerLeftTree->getNearestPlayers(nearbyPlayers, origin, range);
+		upperRightTree->getNearestPlayers(nearbyPlayers, origin, range);
+		lowerRightTree->getNearestPlayers(nearbyPlayers, origin, range);
+	}
 }
