@@ -129,7 +129,7 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 	// keep finding nearest player till jumps are exhausted
 	while (numJumps > 0) {
 		// get all players nearby target
-		area.getNearestPlayers(playersNearby, target, range);
+		area.getNearestPlayersIter(playersNearby, target, range);
 
 		//filter for duplicates, players already hit, initial target
 		Player& nearest = playersNearby[0];

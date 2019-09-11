@@ -6,6 +6,7 @@
 #include <cmath>
 #include <time.h>
 #include <algorithm>
+#include <stack>
 
 #if ENABLE_PRINT
 	#define PRINT(x) std::cout << x;
@@ -193,5 +194,31 @@ void QuadTree::getNearestPlayers(std::vector<Player> &nearbyPlayers, const Playe
 		lowerLeftTree->getNearestPlayers(nearbyPlayers, origin, range);
 		upperRightTree->getNearestPlayers(nearbyPlayers, origin, range);
 		lowerRightTree->getNearestPlayers(nearbyPlayers, origin, range);
+	}
+}
+
+void QuadTree::getNearestPlayersIter(std::vector<Player>& nearbyPlayers, const Player& origin, int range) {
+	std::stack<QuadTree*> stack;
+
+	stack.emplace(this);
+
+	while (!stack.empty()) {
+		auto current = stack.top();
+		stack.pop();
+
+		if (!intersects(current->upperLeft, current->lowerRight, origin.Position(), range)) {
+			continue;
+		}
+
+		for (auto& p : current->players) {
+			nearbyPlayers.emplace_back(p);
+		}
+
+		if (current->upperLeftTree != nullptr) {
+			stack.emplace(current->upperLeftTree);
+			stack.emplace(current->upperRightTree);
+			stack.emplace(current->lowerLeftTree);
+			stack.emplace(current->lowerRightTree);
+		}
 	}
 }
