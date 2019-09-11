@@ -113,8 +113,6 @@ bool isDuplicate(std::vector<Player> &players, const Player& player) {
 void castChainLightning(const Player &caster, Player &initial, QuadTree &area, int range) {
 	// list of nearby players
 	std::vector<Player> playersNearby;
-	// filtered list of possible targets
-	std::vector<Player> potentials;
 	// list of final targets
 	std::vector<Player> targets;
 
@@ -123,8 +121,6 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 	PRINT("\n");
 
 	targets.emplace_back(initial);
-
-	hitPlayer(initial);
 
 	auto numJumps = 4;
 	
@@ -136,19 +132,23 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 		area.getNearestPlayers(playersNearby, target, range);
 
 		//filter for duplicates, players already hit, initial target
+		Player& nearest = playersNearby[0];
+		auto minDistance = INT16_MAX;
 		for (auto& p : playersNearby) {
-			if (p.Name().compare(caster.Name()) != 0 && !isDuplicate(potentials, p) && !isDuplicate(targets, p)) {
-				potentials.emplace_back(p);
+			if (p.Name().compare(caster.Name()) != 0 && !isDuplicate(targets, p)) {
+				auto distance = sqrdDistance(p.Position(), target.Position());
+
+				if (distance < minDistance) {
+					nearest = p;
+					minDistance = distance;
+				}
 			}
 		}
-
-		// get closest one
-		target = filterNearest(potentials, target, range);
-		targets.emplace_back(target);
+		
+		targets.emplace_back(nearest);
 
 		// move on to next
 		playersNearby.clear();
-		potentials.clear();
 		--numJumps;
 	}
 
