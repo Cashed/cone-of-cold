@@ -14,6 +14,7 @@
 #if ENABLE_PRINT
 #define PRINT(x) std::cout << x;
 #else
+#define DRAW_ENABLE
 #define PRINT(X) void()
 #endif
 
@@ -128,6 +129,10 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 
 	// keep finding nearest player till jumps are exhausted
 	while (numJumps > 0) {
+#ifdef DRAW_ENABLE
+		area.Draw(); // Redraw the area to clear coloring
+#endif
+
 		// get all players nearby target
 		area.getNearestPlayersIter(playersNearby, target, range);
 
@@ -135,6 +140,9 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 		Player& nearest = playersNearby[0];
 		auto minDistance = INT16_MAX;
 		for (auto& p : playersNearby) {
+#ifdef DRAW_ENABLE
+			DrawPosToConsole(static_cast<short>(p.Position().X()), static_cast<short>(p.Position().Y()), p.Name()[0], FOREGROUND_RED); // Considered Targets
+#endif
 			if (p.Name().compare(caster.Name()) != 0 && !isDuplicate(targets, p)) {
 				auto distance = sqrdDistance(p.Position(), target.Position());
 
@@ -144,12 +152,19 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 				}
 			}
 		}
-		
+
+#ifdef DRAW_ENABLE
+		DrawPosToConsole(static_cast<short>(target.Position().X()), static_cast<short>(target.Position().Y()), target.Name()[0], FOREGROUND_BLUE); // Start Target
+		DrawPosToConsole(static_cast<short>(nearest.Position().X()), static_cast<short>(nearest.Position().Y()), nearest.Name()[0], FOREGROUND_GREEN); // Selected Target
+#endif
 		targets.emplace_back(nearest);
 
 		// move on to next
 		playersNearby.clear();
 		--numJumps;
+#ifdef DRAW_ENABLE
+		std::cin.ignore();
+#endif
 	}
 
 	for (auto &t : targets) {
@@ -160,6 +175,8 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 
 		hitPlayer(t);
 	}
+
+	std::cin.ignore();
 }
 
 

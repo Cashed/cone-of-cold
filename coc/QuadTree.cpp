@@ -18,6 +18,11 @@ void QuadTree::Draw() const
 {
 	DrawBoxToConsole(upperLeft.X(), lowerRight.X(), upperLeft.Y(), lowerRight.Y());
 
+	for (const auto& player : players)
+	{
+		DrawPosToConsole(static_cast<short>(player.Position().X()), static_cast<short>(player.Position().Y()), player.Name()[0]);
+	}
+
 	if (upperLeftTree)
 		upperLeftTree->Draw();
 	if (upperRightTree)
