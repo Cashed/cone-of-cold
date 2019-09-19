@@ -111,6 +111,10 @@ bool isDuplicate(std::vector<Player> &players, const Player& player) {
 	return false;
 }
 
+float distance(Point& first, Point& second) {
+	return float(sqrt(((second.X() - first.X()) * (second.X() - first.X())) + ((second.Y() - first.Y()) * (second.Y() - first.Y()))));
+}
+
 void castChainLightning(const Player &caster, Player &initial, QuadTree &area, int range) {
 	// list of nearby players
 	std::vector<Player> playersNearby;
@@ -138,7 +142,7 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 
 		//filter for duplicates, players already hit, initial target
 		if (playersNearby.empty()) {
-			std::cout << "No additional players nearby." << std::endl;
+			PRINT("No additional players nearby.");
 			return;
 		}
 
@@ -156,6 +160,11 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 					minDistance = distance;
 				}
 			}
+		}
+
+		if (minDistance > range) {
+			PRINT("No additional players nearby.");
+			return;
 		}
 
 #ifdef DRAW_ENABLE
@@ -200,8 +209,8 @@ int main()
 	//gotHit(meAMage, facingDir, player2);
 	//gotHit(meAMage, facingDir, player3);
 
-	static const int MAX_X = 100;
-	static const int MAX_Y = 100;
+	static const int MAX_X = 50;
+	static const int MAX_Y = 50;
 
 	srand(time(NULL));
 
@@ -214,6 +223,7 @@ int main()
 	for (int i = 0; i < NUM_NAMES; ++i)
 	{
 		players.emplace_back(Point(rand() % MAX_X, rand() % MAX_Y), s_charNames[i], 100);
+
 	}
 
 	for (Player curPlayer : players)
@@ -222,11 +232,22 @@ int main()
 	}
 
 
-	Player initialTarget = players[rand() % 10];
-	Player caster = players[rand() % 18];
+	Player &initialTarget = players[rand() % 10];
+	Player &caster = players[rand() % 18];
 
 	while (initialTarget.Name().compare(caster.Name()) == 0) {
 		caster = players[rand() % 17];
+	}
+
+	for (const Player& p : players) {
+		PRINT(p.Name());
+		PRINT("(");
+		PRINT(p.Position().X());
+		PRINT(", ");
+		PRINT(p.Position().Y());
+		PRINT(") - ");
+		PRINT(distance(initialTarget.Position(), p.Position()));
+		PRINT("\n");
 	}
 
 	PRINT(caster.Name());
@@ -234,7 +255,7 @@ int main()
 	PRINT(initialTarget.Name());
 	PRINT("\n");
 
-	castChainLightning(caster, initialTarget, area, 40);
+	castChainLightning(caster, initialTarget, area, 20);
 
 	//auto targets = getTargets(3, neighbors, initialTarget);
 

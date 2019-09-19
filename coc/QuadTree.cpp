@@ -111,23 +111,13 @@ bool QuadTree::insertPlayer(Player &player) {
 	return false;
 }
 
-float distance(Point& first, Point& second) {
-	return float(sqrt(abs(second.X() - first.X()) + abs(second.Y() - first.Y())));
-}
-
-double pointLineDistance(Point &vertex1, Point &vertex2, Point &castOrigin) {
-	return abs((vertex2.X() - vertex1.X()) * (vertex1.Y() - castOrigin.Y()) - 
-		(vertex1.X() - castOrigin.X()) * (vertex2.Y() - vertex1.Y())) / distance(vertex1, vertex2);
-}
-
-
 // find if a quad intersects with the radius of the spell
 bool intersects(Point &upperLeft, Point &lowerRight, Point &castOrigin, int range) {
 	auto upperLeftSpell = Point(castOrigin.X() - range, castOrigin.Y() + range);
 	auto lowerRightSpell = Point(castOrigin.X() + range, castOrigin.Y() - range);
 	// you should draw this
-	return !(upperLeftSpell.Y() < upperLeft.Y() ||
-		lowerRightSpell.Y() > upperLeft.Y() ||
+	return !(lowerRightSpell.Y() < upperLeft.Y() ||
+		upperLeftSpell.Y() < lowerRight.Y() ||
 		upperLeftSpell.X() > lowerRight.X() ||
 		lowerRightSpell.X() < upperLeft.X());
 }
