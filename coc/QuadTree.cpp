@@ -215,15 +215,16 @@ void QuadTree::getNearestPlayersIter(std::vector<Player>& nearbyPlayers, const P
 			continue;
 		}
 
-		for (auto& p : current->players) {
-			nearbyPlayers.emplace_back(p);
-		}
-
 		if (current->upperLeftTree != nullptr) {
 			stack.emplace(current->upperLeftTree);
 			stack.emplace(current->upperRightTree);
 			stack.emplace(current->lowerLeftTree);
 			stack.emplace(current->lowerRightTree);
+		}
+		else {
+			for (auto& p : current->players) {
+				nearbyPlayers.emplace_back(p);
+			}
 		}
 	}
 }

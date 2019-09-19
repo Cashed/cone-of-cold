@@ -137,6 +137,11 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 		area.getNearestPlayersIter(playersNearby, target, range);
 
 		//filter for duplicates, players already hit, initial target
+		if (playersNearby.empty()) {
+			std::cout << "No additional players nearby." << std::endl;
+			return;
+		}
+
 		Player& nearest = playersNearby[0];
 		auto minDistance = INT16_MAX;
 		for (auto& p : playersNearby) {
@@ -160,6 +165,7 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 		targets.emplace_back(nearest);
 
 		// move on to next
+		target = nearest;
 		playersNearby.clear();
 		--numJumps;
 #ifdef DRAW_ENABLE
@@ -194,8 +200,8 @@ int main()
 	//gotHit(meAMage, facingDir, player2);
 	//gotHit(meAMage, facingDir, player3);
 
-	static const int MAX_X = 50;
-	static const int MAX_Y = 50;
+	static const int MAX_X = 100;
+	static const int MAX_Y = 100;
 
 	srand(time(NULL));
 
