@@ -113,11 +113,11 @@ bool QuadTree::insertPlayer(Player &player) {
 
 // find if a quad intersects with the radius of the spell
 bool intersects(Point &upperLeft, Point &lowerRight, Point &castOrigin, int range) {
-	auto upperLeftSpell = Point(castOrigin.X() - range, castOrigin.Y() + range);
-	auto lowerRightSpell = Point(castOrigin.X() + range, castOrigin.Y() - range);
+	auto upperLeftSpell = Point(castOrigin.X() - range, castOrigin.Y() - range);
+	auto lowerRightSpell = Point(castOrigin.X() + range, castOrigin.Y() + range);
 	// you should draw this
 	return !(lowerRightSpell.Y() < upperLeft.Y() ||
-		upperLeftSpell.Y() < lowerRight.Y() ||
+		upperLeftSpell.Y() > lowerRight.Y() ||
 		upperLeftSpell.X() > lowerRight.X() ||
 		lowerRightSpell.X() < upperLeft.X());
 }
@@ -202,6 +202,7 @@ void QuadTree::getNearestPlayersIter(std::vector<Player>& nearbyPlayers, const P
 		stack.pop();
 
 		if (!intersects(current->upperLeft, current->lowerRight, origin.Position(), range)) {
+			PRINT("did not intersect\n");
 			continue;
 		}
 

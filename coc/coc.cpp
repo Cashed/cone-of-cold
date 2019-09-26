@@ -79,7 +79,7 @@ std::vector<Player> getTargets(int num, std::vector<Player> &potentials, Player 
 }
 
 float sqrdDistance(Point& first, Point& second) {
-	return float(abs(second.X() - first.X()) + abs(second.Y() - first.Y()));
+	return float((second.X() - first.X()) * (second.X() - first.X())) + ((second.Y() - first.Y()) * (second.Y() - first.Y()));
 }
 
 Player& filterNearest(std::vector<Player>& potentials, const Player& origin, int range) {
@@ -112,7 +112,22 @@ bool isDuplicate(std::vector<Player> &players, const Player& player) {
 }
 
 float distance(Point& first, Point& second) {
-	return float(sqrt(((second.X() - first.X()) * (second.X() - first.X())) + ((second.Y() - first.Y()) * (second.Y() - first.Y()))));
+	return float(sqrt(sqrdDistance(first, second)));
+}
+
+void printPlayerDistance(const std::vector<Player> players, const Player& initialTarget) {
+	for (const Player& p : players) {
+		PRINT(p.Name());
+		PRINT("(");
+		PRINT(p.Position().X());
+		PRINT(", ");
+		PRINT(p.Position().Y());
+		PRINT(") - ");
+		PRINT(distance(initialTarget.Position(), p.Position()));
+		PRINT(" target = ");
+		PRINT(initialTarget.Name());
+		PRINT("\n");
+	}
 }
 
 void castChainLightning(const Player &caster, Player &initial, QuadTree &area, int range) {
@@ -120,6 +135,8 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 	std::vector<Player> playersNearby;
 	// list of final targets
 	std::vector<Player> targets;
+
+	auto maxDistance = range * range;
 
 	PRINT("target = ");
 	PRINT(initial.Name());
@@ -143,7 +160,8 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 		//filter for duplicates, players already hit, initial target
 		if (playersNearby.empty()) {
 			PRINT("No additional players nearby.");
-			return;
+			numJumps = 0;
+			continue;
 		}
 
 		Player& nearest = playersNearby[0];
@@ -154,17 +172,33 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 #endif
 			if (p.Name().compare(caster.Name()) != 0 && !isDuplicate(targets, p)) {
 				auto distance = sqrdDistance(p.Position(), target.Position());
-
+				PRINT(p.Name());
+				PRINT(" ");
+				PRINT(distance);
+				PRINT(" min ");
+				PRINT(minDistance);
+				PRINT("\n");
 				if (distance < minDistance) {
+					PRINT(p.Name());
+					PRINT("distance is less");
+					PRINT("\n");
 					nearest = p;
 					minDistance = distance;
 				}
 			}
 		}
 
-		if (minDistance > range) {
-			PRINT("No additional players nearby.");
-			return;
+		printPlayerDistance(playersNearby, target);
+		PRINT("Current min distance is ");
+		PRINT(minDistance);
+		PRINT(" max is ");
+		PRINT(maxDistance);
+		PRINT("\n");
+
+		if (minDistance > maxDistance) {
+			PRINT("No additional players nearby after distance check.");
+			numJumps = 0;
+			continue;
 		}
 
 #ifdef DRAW_ENABLE
@@ -209,8 +243,8 @@ int main()
 	//gotHit(meAMage, facingDir, player2);
 	//gotHit(meAMage, facingDir, player3);
 
-	static const int MAX_X = 50;
-	static const int MAX_Y = 50;
+	static const int MAX_X = 80;
+	static const int MAX_Y = 80;
 
 	srand(time(NULL));
 
@@ -239,23 +273,12 @@ int main()
 		caster = players[rand() % 17];
 	}
 
-	for (const Player& p : players) {
-		PRINT(p.Name());
-		PRINT("(");
-		PRINT(p.Position().X());
-		PRINT(", ");
-		PRINT(p.Position().Y());
-		PRINT(") - ");
-		PRINT(distance(initialTarget.Position(), p.Position()));
-		PRINT("\n");
-	}
-
 	PRINT(caster.Name());
 	PRINT(" is first targetting ");
 	PRINT(initialTarget.Name());
 	PRINT("\n");
 
-	castChainLightning(caster, initialTarget, area, 20);
+	castChainLightning(caster, initialTarget, area, 40);
 
 	//auto targets = getTargets(3, neighbors, initialTarget);
 

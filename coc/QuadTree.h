@@ -4,7 +4,7 @@
 #include "Player.h"
 #include <vector>
 
-#define ENABLE_PRINT 1
+#define ENABLE_PRINT 0
 class QuadTree {
 public:
 	QuadTree(Point _upperLeft, Point _lowerRight, QuadTree* _parent)
