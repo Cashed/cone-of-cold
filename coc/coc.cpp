@@ -11,6 +11,8 @@
 #include <time.h>
 #include <algorithm>
 
+#include "utils.cpp"
+
 #if ENABLE_PRINT
 #define PRINT(x) std::cout << x;
 #else
@@ -78,16 +80,12 @@ std::vector<Player> getTargets(int num, std::vector<Player> &potentials, Player 
 	return targets;
 }
 
-float sqrdDistance(Point& first, Point& second) {
-	return float((second.X() - first.X()) * (second.X() - first.X())) + ((second.Y() - first.Y()) * (second.Y() - first.Y()));
-}
-
 Player& filterNearest(std::vector<Player>& potentials, const Player& origin, int range) {
 	Player& nearest = potentials[0];
 	auto minDistance = INT16_MAX;
 
 	for (auto& p : potentials) {
-		auto distance = sqrdDistance(p.Position(), origin.Position());
+		auto distance = sqrdDistance(p.Position().X(), p.Position().Y(), origin.Position().X(), origin.Position().Y());
 
 		if (distance < minDistance) {
 			nearest = p;
@@ -112,7 +110,7 @@ bool isDuplicate(std::vector<Player> &players, const Player& player) {
 }
 
 float distance(Point& first, Point& second) {
-	return float(sqrt(sqrdDistance(first, second)));
+	return float(sqrt(sqrdDistance(first.X(), first.Y(), second.X(), second.Y())));
 }
 
 void printPlayerDistance(const std::vector<Player> players, const Player& initialTarget) {
@@ -171,7 +169,7 @@ void castChainLightning(const Player &caster, Player &initial, QuadTree &area, i
 			DrawPosToConsole(static_cast<short>(p.Position().X()), static_cast<short>(p.Position().Y()), p.Name()[0], FOREGROUND_RED); // Considered Targets
 #endif
 			if (p.Name().compare(caster.Name()) != 0 && !isDuplicate(targets, p)) {
-				auto distance = sqrdDistance(p.Position(), target.Position());
+				auto distance = sqrdDistance(p.Position().X(), p.Position().Y(), target.Position().X(), target.Position().Y());
 				PRINT(p.Name());
 				PRINT(" ");
 				PRINT(distance);
