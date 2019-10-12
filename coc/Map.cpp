@@ -2,6 +2,7 @@
 
 #include <time.h>
 #include <queue>
+#include <unordered_map>
 
 #include "Map.h"
 #include "utils.cpp"
@@ -34,8 +35,8 @@ struct LessThanByTerrain
 	}
 };
 
-float heuristic(int currentX, int currentY, int neighborX, int neighborY) {
-	return sqrdDistance(currentX, currentY, neighborX, neighborY);
+float heuristic(int destX, int destY, int neighborX, int neighborY) {
+	return sqrdDistance(destX, destY, neighborX, neighborY);
 }
 
 void getNeighbors(Cell& start, std::vector<Cell>& closedCells, std::vector<Cell>& neighbors) {
@@ -45,9 +46,12 @@ void getNeighbors(Cell& start, std::vector<Cell>& closedCells, std::vector<Cell>
 void getPath(Cell& start, Cell& end) { 
 
 	std::priority_queue<Cell, std::vector<Cell>, LessThanByTerrain> openCells;
-	std::vector<Cell> closedCells;
 	
 	openCells.emplace(start);
+
+	// unordered map, key = cell id, val = cost
+	std::unordered_map<_int32, PathCost> visitCost;
+	visitCost.emplace(start.Id(), 0, INVALID_CELL_ID);
 
 	while (!openCells.empty()) {
 		auto current = openCells.top();
@@ -55,17 +59,23 @@ void getPath(Cell& start, Cell& end) {
 
 		// is this the destination?
 		if (current.Id() == end.Id()) {
-			// return reconstruct path function
+			// return reconstruct path function(current)
 		}
-
-		closedCells.emplace_back(current);
 		
 		std::vector<Cell> neighbors(8);
 
 		getNeighbors(current, closedCells, neighbors);
 
 		for (auto& neighbor : neighbors) {
-			// 
+			int neighborCost;
+			auto it = visitCost.find(neighbor.Id());
+			if (it == visitCost.end()) {
+			}
+			else {
+				neighborCost = visitCost[neighbor.Id()];
+			}
+
+
 		}
 	}
 }

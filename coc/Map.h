@@ -3,6 +3,11 @@
 #include <vector>
 #include "Cell.h"
 
+struct PathCost {
+	int cost = INT_MAX;
+	_int32 previousCell = 0;
+};
+
 class Map {
 public:
 	Map() {};
