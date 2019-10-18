@@ -7,21 +7,7 @@
 #include "Map.h"
 #include "utils.cpp"
 
-Map::Map(int _maxRow, int _maxCol) {
-	auto size = _maxRow * _maxCol;
 
-	srand(time(NULL));
-
-	cells.resize = size;
-	
-	for (auto i = 0; i < size; ++i) {
-		cells.emplace_back(rand() % MAX + 1);
-	}
-}
-
-Map::Map() {
-	Map(maxRow, maxCol);
-}
 
 Cell& Map::getCell(int row, int col) {
 	return cells[(row * maxRow) + col];
@@ -32,11 +18,11 @@ bool Map::inMap(int row, int col) {
 		&& col >= 0 && col <= maxCol;
 }
 
-struct LessThanByTerrain
+struct LessThanByTotalCost
 {
 	bool operator()(const Cell& lhs, const Cell& rhs) const
 	{
-		return lhs.Type() < rhs.Type();
+		return lhs.Type < rhs.Type();
 	}
 };
 
@@ -44,32 +30,34 @@ float heuristic(int destX, int destY, int neighborX, int neighborY) {
 	return sqrdDistance(destX, destY, neighborX, neighborY);
 }
 
-void getNeighbors(Cell& start, std::vector<Cell> neighbors, Map& map) {
-	neighbors[0] = map.getCell((start.Row() - 1), (start.Col() - 1));	// top left
-	neighbors[1] = map.getCell((start.Row() - 1),  start.Col());		// top center
-	neighbors[2] = map.getCell((start.Row() - 1), (start.Col() + 1));	// top right
+void Map::getNeighbors(Cell& start, std::vector<Cell> neighbors) {
+	neighbors[0] = getCell((start.Row() - 1), (start.Col() - 1));	// top left
+	neighbors[1] = getCell((start.Row() - 1),  start.Col());		// top center
+	neighbors[2] = getCell((start.Row() - 1), (start.Col() + 1));	// top right
 
-	neighbors[3] = map.getCell(start.Row(),		  (start.Col() - 1));	// left
-	neighbors[4] = map.getCell(start.Row(),		  (start.Col() + 1));	// right
+	neighbors[3] = getCell(start.Row(),		  (start.Col() - 1));	// left
+	neighbors[4] = getCell(start.Row(),		  (start.Col() + 1));	// right
 	
-	neighbors[5] = map.getCell((start.Row() + 1), (start.Col() - 1));	// bottom left
-	neighbors[6] = map.getCell((start.Row() + 1), (start.Col() - 1));	// bottom center
-	neighbors[7] = map.getCell((start.Row() + 1), (start.Col() - 1));	// bottom right
+	neighbors[5] = getCell((start.Row() + 1), (start.Col() - 1));	// bottom left
+	neighbors[6] = getCell((start.Row() + 1), (start.Col() - 1));	// bottom center
+	neighbors[7] = getCell((start.Row() + 1), (start.Col() - 1));	// bottom right
 }
 
-void getPath(Cell& start, Cell& end, Map& map) { 
-	std::priority_queue<Cell, std::vector<Cell>, LessThanByTerrain> openCells;
+
+std::vector<uint32_t> Map::getPath(Cell& start, Cell& end) {
+	std::priority_queue<Cell, std::vector<Cell>, LessThanByTotalCost> openCells;
 	
 	openCells.emplace(start);
 
-	// unordered map, key = cell id, val = cost
-	std::unordered_map<_int32, PathCost> visitCost;
-
-	visitCost.emplace(start.Id(), 0, INVALID_CELL_ID);
+	visitCost.emplace(start, 0, 0, INVALID_CELL_ID);
 
 	while (!openCells.empty()) {
 		auto current = openCells.top();
 		openCells.pop();
+
+		// Terrain == WALL
+		if (current.Type() == IMPASSABLE)
+			continue;
 
 		// is this the destination?
 		if (current.Id() == end.Id()) {
@@ -78,27 +66,33 @@ void getPath(Cell& start, Cell& end, Map& map) {
 		
 		std::vector<Cell> neighbors(8);
 
-		getNeighbors(current, neighbors, map);
+		getNeighbors(current, neighbors);
 
 		for (auto& neighbor : neighbors) {
-			if (!map.inMap(neighbor.Row(), neighbor.Col()))
-				continue;
-
-			if (neighbor.Type() == IMPASSABLE)
+			if (!inMap(neighbor.Row(), neighbor.Col()))
 				continue;
 
 			auto it = visitCost.find(neighbor.Id());
+			int maybeTravelCost;
 			
-			int cost;
+			// never seen this Cell before
 			if (it == visitCost.end()) {
-				cost = neighbor.Type() + visitCost.at(current.Id()).cost;
-			} else {
-				cost = it->second.cost;
-			}
+				// calculate travelCost if we decide to go here
+				maybeTravelCost = neighbor.Type() + visitCost.at(current.Id()).travelCost;
+				// add Cell to map
+				visitCost.emplace(neighbor.Id());
+			} 
 
-			if (cost) {
-				visitCost.emplace(neighbor.Id(), cost, current.Id());
-				heuristic(end.Col(), end.Row(), neighbor.Col(), neighbor.Row());
+			auto currentNeighborInfo = visitCost.at(neighbor.Id());
+
+			// is the cost to go here from the current cell cheaper than what's recorded in the map?
+			if (maybeTravelCost < currentNeighborInfo.travelCost) {
+				// if so, add the better costs
+				currentNeighborInfo.travelCost = maybeTravelCost;
+				currentNeighborInfo.totalCost = maybeTravelCost + heuristic(end.Col(), end.Row(), neighbor.Col(), neighbor.Row());
+				currentNeighborInfo.previousCell = current.Id();
+
+				openCells.emplace(neighbor);
 			}
 		}
 	}

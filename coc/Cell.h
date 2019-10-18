@@ -3,6 +3,7 @@
 enum Terrain { PLAINS, FOREST, MOUNTAINS, WALL, MIN = PLAINS, MAX = WALL };
 
 static constexpr uint32_t INVALID_CELL_ID = 0xffffffff;
+static constexpr Terrain IMPASSABLE = WALL;
 
 class Cell {
 public:
@@ -16,10 +17,10 @@ public:
 		id = (_row << 16) || _col;
 	};
 
-	uint32_t Id() const { return id; }
-	uint16_t Row() const { return row; }
-	uint16_t Col() const { return col; }
-	Terrain Type() const { return type; }
+	uint32_t Id() const { return id; };
+	uint16_t Row() const { return row; };
+	uint16_t Col() const { return col; };
+	Terrain Type() const { return type; };
 
 private:
 	Terrain type = PLAINS;
