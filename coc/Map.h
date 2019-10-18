@@ -5,7 +5,7 @@
 
 struct PathCost {
 	int cost = INT_MAX;
-	_int32 previousCell = 0;
+	uint32_t previousCell = 0;
 };
 
 class Map {
@@ -14,6 +14,7 @@ public:
 	Map(int _maxRow, int _maxCol) : maxRow(_maxRow), maxCol(_maxCol) {};
 
 	Cell& getCell(int row, int col);
+	bool inMap(int row, int col);
 	
 private:
 	int maxRow = 20;

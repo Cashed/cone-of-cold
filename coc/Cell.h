@@ -7,7 +7,8 @@ static constexpr uint32_t INVALID_CELL_ID = 0xffffffff;
 class Cell {
 public:
 	Cell() = delete;
-	Cell(Terrain _type, uint16_t _row, uint16_t _col) : type(_type) {
+	Cell(Terrain _type, uint16_t _row, uint16_t _col) 
+		: type(_type), row(_row), col(_col) {
 
 		// if row = 1, col = 2
 		// ---- row bits ---- | ---- col bits ----
@@ -16,9 +17,13 @@ public:
 	};
 
 	uint32_t Id() const { return id; }
+	uint16_t Row() const { return row; }
+	uint16_t Col() const { return col; }
 	Terrain Type() const { return type; }
 
 private:
 	Terrain type = PLAINS;
 	uint32_t id = 0;
+	uint16_t row = 0;
+	uint16_t col = 0;
 };

@@ -27,6 +27,11 @@ Cell& Map::getCell(int row, int col) {
 	return cells[(row * maxRow) + col];
 }
 
+bool Map::inMap(int row, int col) {
+	return row >= 0 && row <= maxRow
+		&& col >= 0 && col <= maxCol;
+}
+
 struct LessThanByTerrain
 {
 	bool operator()(const Cell& lhs, const Cell& rhs) const
@@ -39,18 +44,27 @@ float heuristic(int destX, int destY, int neighborX, int neighborY) {
 	return sqrdDistance(destX, destY, neighborX, neighborY);
 }
 
-void getNeighbors(Cell& start, std::vector<Cell>& closedCells, std::vector<Cell>& neighbors) {
+void getNeighbors(Cell& start, std::vector<Cell> neighbors, Map& map) {
+	neighbors[0] = map.getCell((start.Row() - 1), (start.Col() - 1));	// top left
+	neighbors[1] = map.getCell((start.Row() - 1),  start.Col());		// top center
+	neighbors[2] = map.getCell((start.Row() - 1), (start.Col() + 1));	// top right
 
+	neighbors[3] = map.getCell(start.Row(),		  (start.Col() - 1));	// left
+	neighbors[4] = map.getCell(start.Row(),		  (start.Col() + 1));	// right
+	
+	neighbors[5] = map.getCell((start.Row() + 1), (start.Col() - 1));	// bottom left
+	neighbors[6] = map.getCell((start.Row() + 1), (start.Col() - 1));	// bottom center
+	neighbors[7] = map.getCell((start.Row() + 1), (start.Col() - 1));	// bottom right
 }
 
-void getPath(Cell& start, Cell& end) { 
-
+void getPath(Cell& start, Cell& end, Map& map) { 
 	std::priority_queue<Cell, std::vector<Cell>, LessThanByTerrain> openCells;
 	
 	openCells.emplace(start);
 
 	// unordered map, key = cell id, val = cost
 	std::unordered_map<_int32, PathCost> visitCost;
+
 	visitCost.emplace(start.Id(), 0, INVALID_CELL_ID);
 
 	while (!openCells.empty()) {
@@ -64,18 +78,28 @@ void getPath(Cell& start, Cell& end) {
 		
 		std::vector<Cell> neighbors(8);
 
-		getNeighbors(current, closedCells, neighbors);
+		getNeighbors(current, neighbors, map);
 
 		for (auto& neighbor : neighbors) {
-			int neighborCost;
+			if (!map.inMap(neighbor.Row(), neighbor.Col()))
+				continue;
+
+			if (neighbor.Type() == IMPASSABLE)
+				continue;
+
 			auto it = visitCost.find(neighbor.Id());
+			
+			int cost;
 			if (it == visitCost.end()) {
-			}
-			else {
-				neighborCost = visitCost[neighbor.Id()];
+				cost = neighbor.Type() + visitCost.at(current.Id()).cost;
+			} else {
+				cost = it->second.cost;
 			}
 
-
+			if (cost) {
+				visitCost.emplace(neighbor.Id(), cost, current.Id());
+				heuristic(end.Col(), end.Row(), neighbor.Col(), neighbor.Row());
+			}
 		}
 	}
 }
