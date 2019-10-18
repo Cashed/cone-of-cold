@@ -22,7 +22,7 @@ struct LessThanByTotalCost
 {
 	bool operator()(const Cell& lhs, const Cell& rhs) const
 	{
-		return lhs.Type < rhs.Type();
+		return lhs.Type() < rhs.Type();
 	}
 };
 
@@ -44,55 +44,64 @@ void Map::getNeighbors(Cell& start, std::vector<Cell> neighbors) {
 }
 
 
-std::vector<uint32_t> Map::getPath(Cell& start, Cell& end) {
-	std::priority_queue<Cell, std::vector<Cell>, LessThanByTotalCost> openCells;
+std::vector<uint32_t> Map::getPath(Cell& start, Cell& end) 
+{
+	struct Node 
+	{
+		uint32_t cellId = 0;
+		float totalCost = 4000; // TODO: make this very big
+		bool operator<(const Node& rhs) const
+		{
+			return totalCost < rhs.totalCost;
+		}
+ 	};
 	
-	openCells.emplace(start);
+	std::priority_queue<Node> openCells;
 
-	visitCost.emplace(start, 0, 0, INVALID_CELL_ID);
+	// unordered map, key = cell id, val = PathCost { travelCost, totalCost, previousCell }
+	std::unordered_map<uint32_t, PathCost> visitCost;
+	
+	openCells.emplace(start.Id(), 0);
+
+	visitCost.emplace(start.Id(), 0, 0, INVALID_CELL_ID);
 
 	while (!openCells.empty()) {
-		auto current = openCells.top();
+		auto currentNode = openCells.top();
 		openCells.pop();
 
-		// Terrain == WALL
-		if (current.Type() == IMPASSABLE)
-			continue;
+		const Cell& currentCell = GetCellById(currentNode.cellId); // TODO: make this
 
 		// is this the destination?
-		if (current.Id() == end.Id()) {
+		if (currentCell.Id() == end.Id()) {
 			// return reconstruct path function(current)
 		}
 		
 		std::vector<Cell> neighbors(8);
 
-		getNeighbors(current, neighbors);
+		getNeighbors(currentCell, neighbors);
 
 		for (auto& neighbor : neighbors) {
 			if (!inMap(neighbor.Row(), neighbor.Col()))
 				continue;
 
-			auto it = visitCost.find(neighbor.Id());
-			int maybeTravelCost;
+			// Terrain == WALL
+			if (neighbor.Type() == IMPASSABLE)
+				continue;
 			
-			// never seen this Cell before
-			if (it == visitCost.end()) {
-				// calculate travelCost if we decide to go here
-				maybeTravelCost = neighbor.Type() + visitCost.at(current.Id()).travelCost;
-				// add Cell to map
-				visitCost.emplace(neighbor.Id());
-			} 
+			// calculate travelCost if we decide to go here
+			auto neighborCost = neighbor.Type();
+			int maybeTravelCost = neighborCost + visitCost.at(current.Id()).travelCost;
 
-			auto currentNeighborInfo = visitCost.at(neighbor.Id());
+			auto currentNeighborInfo = visitCost[neighbor.Id()];
 
 			// is the cost to go here from the current cell cheaper than what's recorded in the map?
 			if (maybeTravelCost < currentNeighborInfo.travelCost) {
 				// if so, add the better costs
 				currentNeighborInfo.travelCost = maybeTravelCost;
-				currentNeighborInfo.totalCost = maybeTravelCost + heuristic(end.Col(), end.Row(), neighbor.Col(), neighbor.Row());
+				auto totalCost = maybeTravelCost + heuristic(end.Col(), end.Row(), neighbor.Col(), neighbor.Row());
 				currentNeighborInfo.previousCell = current.Id();
 
-				openCells.emplace(neighbor);
+				openCells.emplace(neighbor.Id(), totalCost);
 			}
 		}
 	}

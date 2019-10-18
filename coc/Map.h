@@ -26,6 +26,7 @@ public:
 		}
 	};
 
+
 	Cell& getCell(int row, int col);
 	bool inMap(int row, int col);
 	std::vector<uint32_t> getPath(Cell& start, Cell& end);;

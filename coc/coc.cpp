@@ -12,6 +12,7 @@
 #include <algorithm>
 
 #include "utils.cpp"
+#include "Map.h"
 
 #if ENABLE_PRINT
 #define PRINT(x) std::cout << x;
@@ -240,6 +241,11 @@ int main()
 	//gotHit(meAMage, facingDir, player1);
 	//gotHit(meAMage, facingDir, player2);
 	//gotHit(meAMage, facingDir, player3);
+
+	auto map = Map();
+	auto start = map.getCell(0, 0);
+	auto end = map.getCell(2, 2);
+	map.getPath(start, end);
 
 	static const int MAX_X = 80;
 	static const int MAX_Y = 80;
