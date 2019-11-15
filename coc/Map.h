@@ -5,9 +5,18 @@
 #include "Cell.h"
 
 struct PathCost {
-	float totalCost = INT_MAX;
 	int travelCost = INT_MAX;
 	uint32_t previousCell = 0;
+};
+
+struct Node
+{
+	uint32_t cellId = 0;
+	float totalCost = std::numeric_limits<float>::infinity();
+	bool operator<(const Node& rhs) const
+	{
+		return totalCost < rhs.totalCost;
+	}
 };
 
 class Map {
@@ -27,17 +36,17 @@ public:
 	};
 
 
-	Cell& getCell(int row, int col);
+	int getCellIndex(int row, int col);
+	Cell getCell(int row, int col);
+	Cell getCellById(uint32_t id);
 	bool inMap(int row, int col);
-	std::vector<uint32_t> getPath(Cell& start, Cell& end);;
-	void getNeighbors(Cell& start, std::vector<Cell> neighbors);
+	std::vector<uint32_t> getPath(uint32_t start, uint32_t end);
+	void getNeighbors(Cell& start, std::vector<Cell>& neighbors);
 	
 private:
 	int maxRow = 20;
 	int maxCol = 20;
 
-	// unordered map, key = cell id, val = PathCost { travelCost, totalCost, previousCell }
-	std::unordered_map<_int32, PathCost> visitCost;
 
 	std::vector<Cell> cells;
 };
