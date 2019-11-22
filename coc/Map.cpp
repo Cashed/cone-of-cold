@@ -3,12 +3,13 @@
 #include <time.h>
 #include <queue>
 #include <unordered_map>
+#include <iostream>
 
 #include "Map.h"
 #include "MathUtils.h"
 
 
-Cell Map::getCell(int row, int col) {
+Cell& Map::getCell(int row, int col) {
 	return cells[(row * maxRow) + col];
 }
 
@@ -31,48 +32,48 @@ float heuristic(int destX, int destY, int neighborX, int neighborY) {
 }
 
 void Map::getNeighbors(Cell& start, std::vector<Cell>& neighbors) {
-	//auto topLeft = getCellIndex((start.Row() - 1), (start.Col() - 1));
-	//if (topLeft > -1) {
-	//	neighbors.emplace_back(cells[topLeft]);
-	//}
+	auto topLeft = getCellIndex((start.Row() - 1), (start.Col() - 1));
+	if (topLeft > -1) {
+		neighbors.emplace_back(cells[topLeft]);
+	}
 
-	//auto topCenter = getCellIndex((start.Row() - 1), start.Col());
-	//if (topCenter > -1) {
-	//	neighbors.emplace_back(cells[topCenter]);
-	//}
+	auto topCenter = getCellIndex((start.Row() - 1), start.Col());
+	if (topCenter > -1) {
+		neighbors.emplace_back(cells[topCenter]);
+	}
 
-	//auto topRight = getCellIndex((start.Row() - 1), (start.Col() + 1));
-	//if (topRight > -1) {
-	//	neighbors.emplace_back(cells[topRight]);
-	//}
+	auto topRight = getCellIndex((start.Row() - 1), (start.Col() + 1));
+	if (topRight > -1) {
+		neighbors.emplace_back(cells[topRight]);
+	}
 
-	//auto left = getCellIndex(start.Row(), (start.Col() - 1));
-	//if (left > -1) {
-	//	neighbors.emplace_back(cells[left]);
-	//}
+	auto left = getCellIndex(start.Row(), (start.Col() - 1));
+	if (left > -1) {
+		neighbors.emplace_back(cells[left]);
+	}
 
-	//auto right = getCellIndex(start.Row(), (start.Col() + 1));
-	//if (right > -1) {
-	//	neighbors.emplace_back(cells[right]);
-	//}
+	auto right = getCellIndex(start.Row(), (start.Col() + 1));
+	if (right > -1) {
+		neighbors.emplace_back(cells[right]);
+	}
 
-	//auto bottomLeft = getCellIndex((start.Row() + 1), (start.Col() - 1));
-	//if (bottomLeft > -1) {
-	//	neighbors.emplace_back(cells[bottomLeft]);
-	//}
+	auto bottomLeft = getCellIndex((start.Row() + 1), (start.Col() - 1));
+	if (bottomLeft > -1) {
+		neighbors.emplace_back(cells[bottomLeft]);
+	}
 
-	//auto bottomCenter = getCellIndex((start.Row() + 1), (start.Col() - 1));
-	//if (bottomCenter > -1) {
-	//	neighbors.emplace_back(cells[bottomCenter]);
-	//}
+	auto bottomCenter = getCellIndex((start.Row() + 1), (start.Col() - 1));
+	if (bottomCenter > -1) {
+		neighbors.emplace_back(cells[bottomCenter]);
+	}
 
-	//auto bottomRight = getCellIndex((start.Row() + 1), (start.Col() - 1));
-	//if (bottomRight > -1) {
-	//	neighbors.emplace_back(cells[bottomRight]);
-	//}
+	auto bottomRight = getCellIndex((start.Row() + 1), (start.Col() - 1));
+	if (bottomRight > -1) {
+		neighbors.emplace_back(cells[bottomRight]);
+	}
 }
 
-Cell Map::getCellById(uint32_t id) {
+Cell& Map::getCellById(uint32_t id) {
 	for (auto& cell : cells) {
 		if (cell.Id() == id) {
 			return cell;
@@ -82,7 +83,7 @@ Cell Map::getCellById(uint32_t id) {
 
 std::vector <uint32_t> pathToDestination(uint32_t currentId, std::unordered_map<uint32_t, PathCost>& visitCost) {
 	auto path = std::vector<uint32_t>{};
-	path.emplace_back(visitCost[currentId]);
+	path.emplace_back(currentId);
 
 	auto current = visitCost[currentId].previousCell;
 	
@@ -90,6 +91,8 @@ std::vector <uint32_t> pathToDestination(uint32_t currentId, std::unordered_map<
 		path.emplace_back(current);
 		current = visitCost[current].previousCell;
 	}
+
+	return path;
 }
 
 
@@ -102,9 +105,10 @@ std::vector<uint32_t> Map::getPath(uint32_t start, uint32_t end)
 
 	auto endCell = getCellById(end);
 	
-	openCells.emplace(getCellById(start), 0);
+	openCells.emplace(start, 0);
 
-	visitCost.emplace(start, 0, 0, INVALID_CELL_ID);
+	auto it = visitCost[start];
+
 
 	while (!openCells.empty()) {
 		auto currentNode = openCells.top();
@@ -114,6 +118,7 @@ std::vector<uint32_t> Map::getPath(uint32_t start, uint32_t end)
 
 		// is this the destination?
 		if (currentCell.Id() == end) {
+			std::cout << "found the end!\n";
 			return pathToDestination(currentCell.Id(), visitCost);
 		}
 		

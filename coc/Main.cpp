@@ -30,44 +30,50 @@ int main()
 	//gotHit(meAMage, facingDir, player2);
 	//gotHit(meAMage, facingDir, player3);
 
-	auto map = Map();
+	Map map(20, 20);
 	auto start = map.getCell(0, 0);
 	auto end = map.getCell(2, 2);
-	map.getPath(start.Id(), end.Id());
+	auto path = map.getPath(start.Id(), end.Id());
 
-	static const int MAX_X = 80;
-	static const int MAX_Y = 80;
+	std::cout << path.size() << "\n";
 
-	srand(time(NULL));
-
-	QuadTree area(Point(0, 0), Point(MAX_X, MAX_Y), nullptr);
-
-	static const char* s_charNames[] = { "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd", "Taliana", "Flame", "Mel", "Erelia", "Cached", "Reagan", "Zimble", "Kass", "Ankou", "Chef", "Mike", "Gordon" };
-	static const int NUM_NAMES = 18;
-
-	std::vector<Player> players;
-	
-	createPlayerList(NUM_NAMES, players, s_charNames, MAX_X, MAX_Y);
-
-	for (Player curPlayer : players)
-	{
-		area.insertPlayer(curPlayer);
+	for (auto& cell : path) {
+		std::cout << cell << "\n";
 	}
 
+	//static const int MAX_X = 80;
+	//static const int MAX_Y = 80;
 
-	Player &initialTarget = players[rand() % 10];
-	Player &caster = players[rand() % 18];
+	//srand(time(NULL));
 
-	while (initialTarget.Name().compare(caster.Name()) == 0) {
-		caster = players[rand() % 17];
-	}
+	//QuadTree area(Point(0, 0), Point(MAX_X, MAX_Y), nullptr);
 
-	PRINT(caster.Name());
-	PRINT(" is first targetting ");
-	PRINT(initialTarget.Name());
-	PRINT("\n");
+	//static const char* s_charNames[] = { "Skrappy", "Chaosity", "Leayanne", "Ragin", "Liandri", "Zedd", "Taliana", "Flame", "Mel", "Erelia", "Cached", "Reagan", "Zimble", "Kass", "Ankou", "Chef", "Mike", "Gordon" };
+	//static const int NUM_NAMES = 18;
 
-	castChainLightning(caster, initialTarget, area, 40);
+	//std::vector<Player> players;
+	//
+	//createPlayerList(NUM_NAMES, players, s_charNames, MAX_X, MAX_Y);
+
+	//for (Player curPlayer : players)
+	//{
+	//	area.insertPlayer(curPlayer);
+	//}
+
+
+	//Player &initialTarget = players[rand() % 10];
+	//Player &caster = players[rand() % 18];
+
+	//while (initialTarget.Name().compare(caster.Name()) == 0) {
+	//	caster = players[rand() % 17];
+	//}
+
+	//PRINT(caster.Name());
+	//PRINT(" is first targetting ");
+	//PRINT(initialTarget.Name());
+	//PRINT("\n");
+
+	//castChainLightning(caster, initialTarget, area, 40);
 
 	//auto targets = getTargets(3, neighbors, initialTarget);
 

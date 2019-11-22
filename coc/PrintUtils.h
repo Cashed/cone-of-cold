@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "Player.h"
-#include "MathUtils.cpp"
+#include "MathUtils.h"
 
 #if ENABLE_PRINT
 #define PRINT(x) std::cout << x;
@@ -12,4 +12,17 @@
 #define PRINT(X) void()
 #endif
 
-void printPlayerDistance(const std::vector<Player> players, const Player& initialTarget);
+void printPlayerDistance(const std::vector<Player> players, const Player& initialTarget) {
+	for (const Player& p : players) {
+		PRINT(p.Name());
+		PRINT("(");
+		PRINT(p.Position().X());
+		PRINT(", ");
+		PRINT(p.Position().Y());
+		PRINT(") - ");
+		PRINT(distance(initialTarget.Position(), p.Position()));
+		PRINT(" target = ");
+		PRINT(initialTarget.Name());
+		PRINT("\n");
+	}
+}

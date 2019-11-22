@@ -16,77 +16,74 @@
     <Filter Include="Source Files\Utils">
       <UniqueIdentifier>{731a2a14-9ffb-4256-a06c-ca09dde69d57}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Spells">
-      <UniqueIdentifier>{b581cbed-a232-4606-9307-1a1ddddd16a6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Map">
       <UniqueIdentifier>{05d06f08-3600-4ba4-8491-fc7407be43ce}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Math">
       <UniqueIdentifier>{64d02226-e792-4acb-a4a4-54f68caae383}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Spells">
+      <UniqueIdentifier>{47f64707-5728-4c01-98c0-306d78b5ba16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utils">
+      <UniqueIdentifier>{60e3d7e4-db30-4e2c-a0ea-2ff6e31b81b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Map">
+      <UniqueIdentifier>{3ce3560f-a85f-48ef-9c26-46726a51c844}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Math">
+      <UniqueIdentifier>{8bf9202f-3a77-434d-b4cc-b764867c7e2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Player">
+      <UniqueIdentifier>{0e883f81-be2a-47e4-bea9-acd84f8dca1b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="QuadTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Point.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ConsoleDrawUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Cell.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Map.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ChainLightning.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Spells</Filter>
     </ClInclude>
     <ClInclude Include="ConeOfCold.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Spells</Filter>
     </ClInclude>
-    <ClInclude Include="PrintUtils.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ConsoleDrawUtils.h">
+      <Filter>Header Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="MathUtils.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="PlayerUtils.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="PrintUtils.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Map.h">
+      <Filter>Header Files\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="QuadTree.h">
+      <Filter>Header Files\Map</Filter>
     </ClInclude>
     <ClInclude Include="Vector3.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Point.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Cell.h">
+      <Filter>Header Files\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Header Files\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MathUtils.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="PrintUtils.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="ConeOfCold.cpp">
-      <Filter>Source Files\Spells</Filter>
-    </ClCompile>
-    <ClCompile Include="ChainLightning.cpp">
-      <Filter>Source Files\Spells</Filter>
-    </ClCompile>
     <ClCompile Include="ConsoleDrawUtils.cpp">
-      <Filter>Source Files\Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerUtils.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">

@@ -7,7 +7,7 @@ static constexpr Terrain IMPASSABLE = WALL;
 
 class Cell {
 public:
-	Cell() = delete;
+	Cell() {};
 	Cell(Terrain _type, uint16_t _row, uint16_t _col) 
 		: type(_type), row(_row), col(_col) {
 
@@ -21,6 +21,8 @@ public:
 	uint16_t Row() const { return row; };
 	uint16_t Col() const { return col; };
 	Terrain Type() const { return type; };
+
+	void SetType(Terrain _type) { type = _type; };
 
 private:
 	Terrain type = PLAINS;
